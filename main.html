@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fancy Nancy Says</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Borel&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body, html {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .bg {
+            /* Background image */
+            background-image: url('https://i.imgur.com/FOt64hH.png');
+            
+            /* Full height and width */
+            height: 100%;
+            width: 100%;
+            
+            /* Center and cover the screen */
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            
+            /* Fixed position for scrolling effect */
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .content {
+            position: relative;
+            height: 100%;
+            color: white;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            padding-top: 40px;
+            margin-bottom: auto;
+        }
+
+        .quote-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.6rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            background-color: rgba(34, 3, 50, 0.7);
+            z-index: -1;
+        }
+
+        .borel-regular {
+            font-family: "Borel", cursive;
+            font-weight: 800;
+            font-style: bold;
+        }
+
+        .footer {
+            margin-top: auto;
+            padding-bottom: 20px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            margin-top: 20px;
+        }
+
+        .nav-button {
+            background-color: rgba(255, 255, 255, 0.25);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            padding: 10px 15px;
+            border-radius: 25px;
+            backdrop-filter: blur(5px);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 60px;
+        }
+
+        .nav-button:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .reactions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .reaction-button {
+            background-color: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 1.4rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .reaction-button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .reaction-count {
+            font-size: 0.75rem;
+            background-color: rgba(255, 255, 255, 0.8);
+            color: #330066;
+            border-radius: 10px;
+            padding: 2px 8px;
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            font-weight: bold;
+            min-width: 24px;
+            text-align: center;
+        }
+        
+        /* Add a counter at the bottom to show which quote you're on */
+        .quote-counter {
+            font-size: 0.9rem;
+            margin-top: 15px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background image -->
+    <div class="bg"></div>
+    
+    <!-- Dark overlay to improve text readability -->
+    <div class="overlay"></div>
+    
+    <!-- Main content -->
+    <div class="content">
+        <div class="header">
+            <h1 class="borel-regular">Fancy Nancy Says</h1>
+        </div>
+        
+        <div class="quote-content">
+            <p>Fall is fun, but winter is too cold up north. Fly south with the birds. They know best.</p>
+            
+            <div class="reactions">
+                <button class="reaction-button" onclick="incrementCounter(this)">
+                    😂
+                    <span class="reaction-count">0</span>
+                </button>
+                <button class="reaction-button" onclick="incrementCounter(this)">
+                    ❤️
+                    <span class="reaction-count">0</span>
+                </button>
+                <button class="reaction-button" onclick="incrementCounter(this)">
+                    👍
+                    <span class="reaction-count">0</span>
+                </button>
+                <button class="reaction-button" onclick="incrementCounter(this)">
+                    🙏
+                    <span class="reaction-count">0</span>
+                </button>
+                <button class="reaction-button" onclick="incrementCounter(this)">
+                    💯
+                    <span class="reaction-count">0</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="navigation">
+                <button class="nav-button">←</button>
+                <button class="nav-button">→</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript for reaction counters -->
+    <script>
+        function incrementCounter(button) {
+            const counter = button.querySelector('.reaction-count');
+            let count = parseInt(counter.textContent);
+            count++;
+            counter.textContent = count;
+            
+            // Animation effect
+            button.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                button.style.transform = 'none';
+            }, 200);
+        }
+    </script>
+</body>
+</html>
