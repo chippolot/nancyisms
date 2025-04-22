@@ -3,7 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#220332">
     <title>Fancy Nancy Says</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,28 +17,25 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Arial', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body,
         html {
             height: 100%;
+            width: 100%;
             overflow: hidden;
+            position: fixed;
+            touch-action: manipulation;
         }
 
         .bg {
-            /* Background image */
             background-image: url('https://i.imgur.com/FOt64hH.png');
-
-            /* Full height and width */
             height: 100%;
             width: 100%;
-
-            /* Center and cover the screen */
             background-position: center;
             background-repeat: no-repeat;
             background-size: cover;
-
-            /* Fixed position for scrolling effect */
             position: fixed;
             top: 0;
             left: 0;
@@ -45,6 +45,7 @@
         .content {
             position: relative;
             height: 100%;
+            width: 100%;
             color: white;
             text-align: center;
             display: flex;
@@ -54,27 +55,28 @@
         }
 
         .header {
-            padding-top: 40px;
-            margin-bottom: auto;
+            padding-top: min(40px, 10vh);
+            flex-shrink: 0;
         }
 
         .quote-content {
-            flex-grow: 1;
+            flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 20px;
+            padding: 10px;
             max-width: 800px;
+            width: 100%;
             margin: 0 auto;
         }
 
         h1 {
-            font-size: 2.8rem;
+            font-size: clamp(2rem, 8vw, 2.8rem);
             margin-bottom: 1rem;
         }
 
         p {
-            font-size: 1.6rem;
+            font-size: clamp(1.2rem, 5vw, 1.6rem);
             margin-bottom: 2rem;
             line-height: 1.6;
         }
@@ -97,16 +99,17 @@
 
         .footer {
             margin-top: auto;
-            padding-bottom: 20px;
+            padding-bottom: min(20px, 5vh);
             width: 100%;
             display: flex;
             flex-direction: column;
+            align-items: center;
+            flex-shrink: 0;
         }
 
         .navigation {
             display: flex;
-            justify-content: space-between;
-            padding: 0 20px;
+            justify-content: center;
             margin-top: 20px;
         }
 
@@ -114,24 +117,27 @@
             background-color: rgba(255, 255, 255, 0.25);
             color: white;
             border: 2px solid rgba(255, 255, 255, 0.5);
-            padding: 10px 15px;
-            border-radius: 25px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
             backdrop-filter: blur(5px);
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            width: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .nav-button:hover {
+        .nav-button:active {
             background-color: rgba(255, 255, 255, 0.4);
-            transform: translateY(-3px);
+            transform: scale(0.95);
         }
 
         .reactions {
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: clamp(10px, 3vw, 15px);
             margin-top: 20px;
             flex-wrap: wrap;
         }
@@ -150,9 +156,9 @@
             align-items: center;
         }
 
-        .reaction-button:hover {
+        .reaction-button:active {
             background-color: rgba(255, 255, 255, 0.3);
-            transform: translateY(-3px);
+            transform: scale(0.95);
         }
 
         .reaction-count {
@@ -169,18 +175,6 @@
             text-align: center;
         }
 
-        .quote-counter {
-            font-size: 0.9rem;
-            margin-top: 15px;
-            opacity: 0.7;
-        }
-
-        .loading {
-            font-size: 1.2rem;
-            opacity: 0.7;
-        }
-
-        /* Add a subtle fade-in animation for quotes */
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -195,6 +189,62 @@
 
         .quote-text {
             animation: fadeIn 0.5s ease-out;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255, 255, 255, .3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* PWA install prompt */
+        .install-prompt {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(34, 3, 50, 0.9);
+            padding: 15px;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .install-button {
+            background-color: white;
+            color: #330066;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .dismiss-button {
+            background: none;
+            border: none;
+            color: white;
+            margin-left: 10px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -213,7 +263,13 @@
         </div>
 
         <div class="quote-content">
-            <p id="quote-text" class="quote-text">Loading wisdom...</p>
+            <div id="quote-container">
+                <div class="loading-container" id="loading-indicator">
+                    <div class="loading-spinner"></div>
+                    <p>Loading wisdom...</p>
+                </div>
+                <p id="quote-text" class="quote-text" style="display: none;"></p>
+            </div>
 
             <div class="reactions">
                 <button class="reaction-button" data-emoji="😂" onclick="incrementReaction('😂')">
@@ -242,9 +298,16 @@
         <div class="footer">
             <div class="navigation">
                 <button class="nav-button" onclick="loadNewQuote()">↻</button>
-                <button class="nav-button" onclick="loadNewQuote()">→</button>
             </div>
-            <div class="quote-counter">Fancy Nancy's Wisdom</div>
+        </div>
+    </div>
+
+    <!-- PWA install prompt -->
+    <div class="install-prompt" id="install-prompt">
+        <span>Add to Home Screen for the best experience</span>
+        <div>
+            <button class="install-button" id="install-button">Install</button>
+            <button class="dismiss-button" id="dismiss-button">✕</button>
         </div>
     </div>
 
@@ -252,39 +315,63 @@
     <script>
         // Current quote ID
         let currentQuoteId = null;
+        let deferredPrompt = null;
 
         // Function to fetch a random quote
         async function loadNewQuote() {
+            const loadingIndicator = document.getElementById('loading-indicator');
             const quoteText = document.getElementById('quote-text');
-            quoteText.textContent = 'Loading wisdom...';
-            quoteText.classList.remove('quote-text');
+
+            // Show loading, hide quote
+            loadingIndicator.style.display = 'flex';
+            quoteText.style.display = 'none';
 
             try {
                 // Add a small delay to reset animation
                 setTimeout(async () => {
-                    const response = await fetch('/api/random-quote');
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch quote');
+                    try {
+                        const response = await fetch('/api/random-quote');
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch quote');
+                        }
+
+                        const data = await response.json();
+
+                        // Store the current quote ID
+                        currentQuoteId = data.id;
+
+                        // Update the quote text with animation
+                        quoteText.textContent = data.quote;
+
+                        // Hide loading, show quote
+                        loadingIndicator.style.display = 'none';
+                        quoteText.style.display = 'block';
+
+                        // Reset animation
+                        quoteText.classList.remove('quote-text');
+                        void quoteText.offsetWidth; // Trigger reflow
+                        quoteText.classList.add('quote-text');
+
+                        // Reset reaction counters
+                        document.querySelectorAll('.reaction-count').forEach(counter => {
+                            counter.textContent = '0';
+                        });
+                    } catch (error) {
+                        console.error('Error fetching quote:', error);
+
+                        // Hide loading, show error message
+                        loadingIndicator.style.display = 'none';
+                        quoteText.style.display = 'block';
+                        quoteText.textContent = 'Could not load a quote. Please try again later.';
                     }
-
-                    const data = await response.json();
-
-                    // Store the current quote ID
-                    currentQuoteId = data.id;
-
-                    // Update the quote text with animation
-                    quoteText.textContent = data.quote;
-                    quoteText.classList.add('quote-text');
-
-                    // Reset reaction counters
-                    document.querySelectorAll('.reaction-count').forEach(counter => {
-                        counter.textContent = '0';
-                    });
-
-                }, 100);
+                }, 300);
 
             } catch (error) {
                 console.error('Error fetching quote:', error);
+
+                // Hide loading, show error message
+                loadingIndicator.style.display = 'none';
+                quoteText.style.display = 'block';
                 quoteText.textContent = 'Could not load a quote. Please try again later.';
             }
         }
@@ -308,7 +395,72 @@
 
             // TODO: Add API call to save the reaction to database
             // For now, we're just updating the UI
+            // fetch('/api/react', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     },
+            //     body: JSON.stringify({
+            //         quoteId: currentQuoteId,
+            //         emoji: emoji
+            //     }),
+            // });
         }
+
+        // Handle PWA install
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            e.preventDefault();
+
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+
+            // Show the install prompt after a short delay
+            setTimeout(() => {
+                const installPrompt = document.getElementById('install-prompt');
+                installPrompt.style.display = 'flex';
+            }, 3000);
+        });
+
+        // Setup install button
+        document.getElementById('install-button').addEventListener('click', () => {
+            const installPrompt = document.getElementById('install-prompt');
+            installPrompt.style.display = 'none';
+
+            // Show the prompt
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+
+                // Wait for the user to respond to the prompt
+                deferredPrompt.userChoice.then(() => {
+                    deferredPrompt = null;
+                });
+            }
+        });
+
+        // Setup dismiss button
+        document.getElementById('dismiss-button').addEventListener('click', () => {
+            const installPrompt = document.getElementById('install-prompt');
+            installPrompt.style.display = 'none';
+        });
+
+        // Handle service worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(registration => {
+                    console.log('ServiceWorker registration successful');
+                }).catch(error => {
+                    console.log('ServiceWorker registration failed: ', error);
+                });
+            });
+        }
+
+        // Prevent scrolling on mobile
+        document.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
 
         // Load a quote when the page loads
         document.addEventListener('DOMContentLoaded', loadNewQuote);
