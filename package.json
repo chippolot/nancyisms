@@ -1,0 +1,8 @@
+{
+    "name": "nancyisms",
+    "version": "1.0.0",
+    "description": "Fancy Nancy Quotes",
+    "scripts": {
+      "build": "echo 'No build step needed'"
+    }
+  }
