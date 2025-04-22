@@ -70,12 +70,6 @@
             margin: 0 auto;
         }
 
-        .footer-text {
-             font-size: 1rem;
-             margin-top: 30px;
-             opacity: 0.55;
-         }
-
         .quote-link {
             color: white;
             text-decoration: none;
@@ -117,6 +111,12 @@
             padding-bottom: min(20px, 5vh);
         }
 
+        .footer-text {
+            font-size: 0.9rem;
+            margin-top: 20px;
+            opacity: 0.55;
+        }
+
         .reactions-container {
             width: 100%;
             padding: 15px 0;
@@ -146,15 +146,15 @@
         .navigation {
             display: flex;
             justify-content: center;
-            margin-top: 20px;
+            margin-top: 5px;
         }
 
         .nav-button {
             background-color: rgba(255, 255, 255, 0.25);
             color: white;
             border: 2px solid rgba(255, 255, 255, 0.5);
-            width: 65px;
-            height: 65px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             backdrop-filter: blur(5px);
             font-size: 1.75rem;
@@ -305,9 +305,11 @@
                 <div class="loading-container" id="loading-indicator">
                     <div class="loading-spinner"></div>
                 </div>
-                <p id="quote-text" class="quote-text" style="display: none;">
-                    <a id="quote-link" class="quote-link" href="#"></a>
-                </p>
+                <i>
+                    <p id="quote-text" class="quote-text" style="display: none;">
+                        <a id="quote-link" class="quote-link" href="#"></a>
+                    </p>
+                </i>
             </div>
         </div>
 
@@ -523,7 +525,7 @@
 
                         // Update the quote text with animation
                         quoteLink.textContent = data.quote;
-                        
+
                         // Set the URL for the quote link if available
                         if (data.url) {
                             quoteLink.href = data.url;
