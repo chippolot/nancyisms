@@ -301,7 +301,6 @@
         <!-- Reactions fixed above footer -->
         <div class="reactions-container">
             <div class="reactions">
-                <!-- Update your reaction buttons to use toggleReaction instead of incrementReaction -->
                 <button class="reaction-button" data-emoji="😂" onclick="toggleReaction('😂')">
                     😂
                     <span class="reaction-count">0</span>
@@ -347,7 +346,6 @@
         let currentQuoteId = null;
         let deferredPrompt = null;
 
-
         // Store for all reactions
         let userReactions = {};
 
@@ -367,17 +365,13 @@
         // Function to fetch the total reactions for a quote
         async function fetchReactionsForQuote(quoteId) {
             try {
-                // In a real implementation, this would be an API call to get reactions
-                // For now, we'll mock the data with some random numbers
-                const mockReactionsData = {
-                    "😂": Math.floor(Math.random() * 10),
-                    "❤️": Math.floor(Math.random() * 10),
-                    "👍": Math.floor(Math.random() * 10),
-                    "🙏": Math.floor(Math.random() * 10),
-                    "💯": Math.floor(Math.random() * 10)
-                };
+                const response = await fetch(`/api/get-reactions?quote_id=${quoteId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch reactions');
+                }
 
-                return mockReactionsData;
+                const data = await response.json();
+                return data;
             } catch (error) {
                 console.error('Error fetching reactions:', error);
                 return {
@@ -397,7 +391,6 @@
             // Update each reaction button
             document.querySelectorAll('.reaction-button').forEach(button => {
                 const emoji = button.getAttribute('data-emoji');
-                const counter = button.querySelector('.reaction-count');
 
                 // Check if this user has reacted with this emoji
                 const hasReacted = userQuoteReactions[emoji] || false;
@@ -411,6 +404,86 @@
             });
         }
 
+        // Function to toggle reaction
+        async function toggleReaction(emoji) {
+            if (!currentQuoteId) return;
+
+            // Initialize if not exists
+            if (!userReactions[currentQuoteId]) {
+                userReactions[currentQuoteId] = {};
+            }
+
+            // Toggle the reaction
+            const currentState = userReactions[currentQuoteId][emoji] || false;
+            userReactions[currentQuoteId][emoji] = !currentState;
+
+            // Get the button and counter
+            const button = document.querySelector(`.reaction-button[data-emoji="${emoji}"]`);
+            const counter = button.querySelector('.reaction-count');
+
+            // Optimistically update the counter based on toggle state
+            let count = parseInt(counter.textContent);
+            if (userReactions[currentQuoteId][emoji]) {
+                // User added a reaction
+                count++;
+                // Animation effect
+                button.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    button.style.transform = 'none';
+                }, 200);
+            } else {
+                // User removed a reaction
+                count = Math.max(0, count - 1);
+                // Subtle animation for removal
+                button.style.opacity = '0.5';
+                setTimeout(() => {
+                    button.style.opacity = '1';
+                }, 200);
+            }
+
+            // Update the counter
+            counter.textContent = count;
+
+            // Update local storage
+            saveUserReactions();
+
+            // Update UI to reflect changes
+            updateReactionUI();
+
+            // Send to server
+            try {
+                const response = await fetch('/api/toggle-reaction', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        quote_id: currentQuoteId,
+                        emoji: emoji,
+                        add: userReactions[currentQuoteId][emoji]
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to save reaction');
+                }
+
+                const data = await response.json();
+
+                // Update counter with server value (in case of conflict)
+                counter.textContent = data.count;
+            } catch (error) {
+                console.error('Error saving reaction:', error);
+                // Revert the local change if server update failed
+                if (userReactions[currentQuoteId]) {
+                    userReactions[currentQuoteId][emoji] = !userReactions[currentQuoteId][emoji];
+                    saveUserReactions();
+                    updateReactionUI();
+                }
+            }
+        }
+
+        // Function to fetch a random quote
         async function loadNewQuote() {
             const loadingIndicator = document.getElementById('loading-indicator');
             const quoteText = document.getElementById('quote-text');
@@ -477,87 +550,6 @@
                 quoteText.textContent = 'Could not load a quote. Please try again later.';
             }
         }
-        // Modified function to toggle reaction
-        function toggleReaction(emoji) {
-            if (!currentQuoteId) return;
-
-            // Initialize if not exists
-            if (!userReactions[currentQuoteId]) {
-                userReactions[currentQuoteId] = {};
-            }
-
-            // Toggle the reaction
-            const currentState = userReactions[currentQuoteId][emoji] || false;
-            userReactions[currentQuoteId][emoji] = !currentState;
-
-            // Get the button and counter
-            const button = document.querySelector(`.reaction-button[data-emoji="${emoji}"]`);
-            const counter = button.querySelector('.reaction-count');
-
-            // Update the counter based on toggle state
-            let count = parseInt(counter.textContent);
-            if (userReactions[currentQuoteId][emoji]) {
-                // User added a reaction
-                count++;
-                // Animation effect
-                button.style.transform = 'scale(1.2)';
-                setTimeout(() => {
-                    button.style.transform = 'none';
-                }, 200);
-            } else {
-                // User removed a reaction
-                count--;
-                // Subtle animation for removal
-                button.style.opacity = '0.5';
-                setTimeout(() => {
-                    button.style.opacity = '1';
-                }, 200);
-            }
-
-            // Update the counter
-            counter.textContent = count;
-
-            // Update local storage
-            saveUserReactions();
-
-            // Update UI to reflect changes
-            updateReactionUI();
-
-            // In a real implementation, send to server
-            // sendReactionToServer(currentQuoteId, emoji, userReactions[currentQuoteId][emoji]);
-        }
-
-        // Mock function to send reaction to server (would be implemented in a real app)
-        async function sendReactionToServer(quoteId, emoji, isAdding) {
-            // This would be a real API call in production
-            console.log(`${isAdding ? 'Adding' : 'Removing'} ${emoji} reaction for quote ${quoteId}`);
-
-            // Example API call (commented out)
-            /*
-            try {
-                const response = await fetch('/api/react', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        quoteId: quoteId,
-                        emoji: emoji,
-                        add: isAdding
-                    }),
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Failed to save reaction');
-                }
-                
-                const data = await response.json();
-                return data;
-            } catch (error) {
-                console.error('Error saving reaction:', error);
-            }
-            */
-        }
 
         // Handle PWA install
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -614,7 +606,7 @@
             }
         }, { passive: false });
 
-        // Load a quote when the page loads
+        // Initialize reactions when page loads
         document.addEventListener('DOMContentLoaded', () => {
             loadUserReactions();
             loadNewQuote();
