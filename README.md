@@ -1,4 +1,4 @@
 # nancyisms
 
-## Domain registered w/ namecheap
-## Serverless setup w/ vercel
+Domain registered w/ namecheap
+Serverless setup w/ vercel
