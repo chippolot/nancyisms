@@ -180,6 +180,12 @@
             transform: scale(0.95);
         }
 
+        .reaction-button.reacted {
+            background-color: rgba(255, 255, 255, 0.4);
+            border-color: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
         .reaction-count {
             font-size: 0.75rem;
             background-color: rgba(255, 255, 255, 0.8);
@@ -295,23 +301,24 @@
         <!-- Reactions fixed above footer -->
         <div class="reactions-container">
             <div class="reactions">
-                <button class="reaction-button" data-emoji="😂" onclick="incrementReaction('😂')">
+                <!-- Update your reaction buttons to use toggleReaction instead of incrementReaction -->
+                <button class="reaction-button" data-emoji="😂" onclick="toggleReaction('😂')">
                     😂
                     <span class="reaction-count">0</span>
                 </button>
-                <button class="reaction-button" data-emoji="❤️" onclick="incrementReaction('❤️')">
+                <button class="reaction-button" data-emoji="❤️" onclick="toggleReaction('❤️')">
                     ❤️
                     <span class="reaction-count">0</span>
                 </button>
-                <button class="reaction-button" data-emoji="👍" onclick="incrementReaction('👍')">
+                <button class="reaction-button" data-emoji="👍" onclick="toggleReaction('👍')">
                     👍
                     <span class="reaction-count">0</span>
                 </button>
-                <button class="reaction-button" data-emoji="🙏" onclick="incrementReaction('🙏')">
+                <button class="reaction-button" data-emoji="🙏" onclick="toggleReaction('🙏')">
                     🙏
                     <span class="reaction-count">0</span>
                 </button>
-                <button class="reaction-button" data-emoji="💯" onclick="incrementReaction('💯')">
+                <button class="reaction-button" data-emoji="💯" onclick="toggleReaction('💯')">
                     💯
                     <span class="reaction-count">0</span>
                 </button>
@@ -340,7 +347,70 @@
         let currentQuoteId = null;
         let deferredPrompt = null;
 
-        // Function to fetch a random quote
+
+        // Store for all reactions
+        let userReactions = {};
+
+        // Load reactions from localStorage on page load
+        function loadUserReactions() {
+            const storedReactions = localStorage.getItem('fancyNancyReactions');
+            if (storedReactions) {
+                userReactions = JSON.parse(storedReactions);
+            }
+        }
+
+        // Save reactions to localStorage
+        function saveUserReactions() {
+            localStorage.setItem('fancyNancyReactions', JSON.stringify(userReactions));
+        }
+
+        // Function to fetch the total reactions for a quote
+        async function fetchReactionsForQuote(quoteId) {
+            try {
+                // In a real implementation, this would be an API call to get reactions
+                // For now, we'll mock the data with some random numbers
+                const mockReactionsData = {
+                    "😂": Math.floor(Math.random() * 10),
+                    "❤️": Math.floor(Math.random() * 10),
+                    "👍": Math.floor(Math.random() * 10),
+                    "🙏": Math.floor(Math.random() * 10),
+                    "💯": Math.floor(Math.random() * 10)
+                };
+
+                return mockReactionsData;
+            } catch (error) {
+                console.error('Error fetching reactions:', error);
+                return {
+                    "😂": 0, "❤️": 0, "👍": 0, "🙏": 0, "💯": 0
+                };
+            }
+        }
+
+        // Function to update reaction UI
+        function updateReactionUI() {
+            // If no quote is loaded yet, do nothing
+            if (!currentQuoteId) return;
+
+            // Get the user's reactions for this quote
+            const userQuoteReactions = userReactions[currentQuoteId] || {};
+
+            // Update each reaction button
+            document.querySelectorAll('.reaction-button').forEach(button => {
+                const emoji = button.getAttribute('data-emoji');
+                const counter = button.querySelector('.reaction-count');
+
+                // Check if this user has reacted with this emoji
+                const hasReacted = userQuoteReactions[emoji] || false;
+
+                // Apply styling based on reaction state
+                if (hasReacted) {
+                    button.classList.add('reacted');
+                } else {
+                    button.classList.remove('reacted');
+                }
+            });
+        }
+
         async function loadNewQuote() {
             const loadingIndicator = document.getElementById('loading-indicator');
             const quoteText = document.getElementById('quote-text');
@@ -375,10 +445,19 @@
                         void quoteText.offsetWidth; // Trigger reflow
                         quoteText.classList.add('quote-text');
 
-                        // Reset reaction counters
-                        document.querySelectorAll('.reaction-count').forEach(counter => {
-                            counter.textContent = '0';
+                        // Fetch reactions for this quote
+                        const reactionsData = await fetchReactionsForQuote(currentQuoteId);
+
+                        // Update reaction counters
+                        document.querySelectorAll('.reaction-button').forEach(button => {
+                            const emoji = button.getAttribute('data-emoji');
+                            const counter = button.querySelector('.reaction-count');
+                            counter.textContent = reactionsData[emoji] || 0;
                         });
+
+                        // Update UI based on user's reactions
+                        updateReactionUI();
+
                     } catch (error) {
                         console.error('Error fetching quote:', error);
 
@@ -398,36 +477,86 @@
                 quoteText.textContent = 'Could not load a quote. Please try again later.';
             }
         }
-
-        // Function to increment reaction counter
-        function incrementReaction(emoji) {
+        // Modified function to toggle reaction
+        function toggleReaction(emoji) {
             if (!currentQuoteId) return;
 
+            // Initialize if not exists
+            if (!userReactions[currentQuoteId]) {
+                userReactions[currentQuoteId] = {};
+            }
+
+            // Toggle the reaction
+            const currentState = userReactions[currentQuoteId][emoji] || false;
+            userReactions[currentQuoteId][emoji] = !currentState;
+
+            // Get the button and counter
             const button = document.querySelector(`.reaction-button[data-emoji="${emoji}"]`);
             const counter = button.querySelector('.reaction-count');
 
+            // Update the counter based on toggle state
             let count = parseInt(counter.textContent);
-            count++;
+            if (userReactions[currentQuoteId][emoji]) {
+                // User added a reaction
+                count++;
+                // Animation effect
+                button.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    button.style.transform = 'none';
+                }, 200);
+            } else {
+                // User removed a reaction
+                count--;
+                // Subtle animation for removal
+                button.style.opacity = '0.5';
+                setTimeout(() => {
+                    button.style.opacity = '1';
+                }, 200);
+            }
+
+            // Update the counter
             counter.textContent = count;
 
-            // Animation effect
-            button.style.transform = 'scale(1.2)';
-            setTimeout(() => {
-                button.style.transform = 'none';
-            }, 200);
+            // Update local storage
+            saveUserReactions();
 
-            // TODO: Add API call to save the reaction to database
-            // For now, we're just updating the UI
-            // fetch('/api/react', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify({
-            //         quoteId: currentQuoteId,
-            //         emoji: emoji
-            //     }),
-            // });
+            // Update UI to reflect changes
+            updateReactionUI();
+
+            // In a real implementation, send to server
+            // sendReactionToServer(currentQuoteId, emoji, userReactions[currentQuoteId][emoji]);
+        }
+
+        // Mock function to send reaction to server (would be implemented in a real app)
+        async function sendReactionToServer(quoteId, emoji, isAdding) {
+            // This would be a real API call in production
+            console.log(`${isAdding ? 'Adding' : 'Removing'} ${emoji} reaction for quote ${quoteId}`);
+
+            // Example API call (commented out)
+            /*
+            try {
+                const response = await fetch('/api/react', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        quoteId: quoteId,
+                        emoji: emoji,
+                        add: isAdding
+                    }),
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to save reaction');
+                }
+                
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error saving reaction:', error);
+            }
+            */
         }
 
         // Handle PWA install
@@ -486,7 +615,10 @@
         }, { passive: false });
 
         // Load a quote when the page loads
-        document.addEventListener('DOMContentLoaded', loadNewQuote);
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserReactions();
+            loadNewQuote();
+        });
     </script>
 </body>
 
