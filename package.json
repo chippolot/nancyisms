@@ -1,8 +1,14 @@
 {
-    "name": "nancyisms",
-    "version": "1.0.0",
-    "description": "Fancy Nancy Quotes",
-    "scripts": {
-      "build": "echo 'No build step needed'"
-    }
+  "name": "nancyisms",
+  "version": "1.0.0",
+  "description": "Fancy Nancy Quotes",
+  "main": "index.js",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "vercel dev",
+    "deploy": "vercel deploy --prod"
   }
+}

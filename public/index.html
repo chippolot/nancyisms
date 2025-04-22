@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,7 +16,8 @@
             font-family: 'Arial', sans-serif;
         }
 
-        body, html {
+        body,
+        html {
             height: 100%;
             overflow: hidden;
         }
@@ -23,16 +25,16 @@
         .bg {
             /* Background image */
             background-image: url('https://i.imgur.com/FOt64hH.png');
-            
+
             /* Full height and width */
             height: 100%;
             width: 100%;
-            
+
             /* Center and cover the screen */
             background-position: center;
             background-repeat: no-repeat;
             background-size: cover;
-            
+
             /* Fixed position for scrolling effect */
             position: fixed;
             top: 0;
@@ -83,7 +85,7 @@
             left: 0;
             height: 100%;
             width: 100%;
-            background-color: rgba(101, 63, 121, 0.7);
+            background-color: rgba(34, 3, 50, 0.7);
             z-index: -1;
         }
 
@@ -166,77 +168,151 @@
             min-width: 24px;
             text-align: center;
         }
-        
-        /* Add a counter at the bottom to show which quote you're on */
+
         .quote-counter {
             font-size: 0.9rem;
             margin-top: 15px;
             opacity: 0.7;
         }
+
+        .loading {
+            font-size: 1.2rem;
+            opacity: 0.7;
+        }
+
+        /* Add a subtle fade-in animation for quotes */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .quote-text {
+            animation: fadeIn 0.5s ease-out;
+        }
     </style>
 </head>
+
 <body>
     <!-- Background image -->
     <div class="bg"></div>
-    
+
     <!-- Dark overlay to improve text readability -->
     <div class="overlay"></div>
-    
+
     <!-- Main content -->
     <div class="content">
         <div class="header">
             <h1 class="borel-regular">Fancy Nancy Says</h1>
         </div>
-        
+
         <div class="quote-content">
-            <p>Fall is fun, but winter is too cold up north. Fly south with the birds. They know best.</p>
-            
+            <p id="quote-text" class="quote-text">Loading wisdom...</p>
+
             <div class="reactions">
-                <button class="reaction-button" onclick="incrementCounter(this)">
+                <button class="reaction-button" data-emoji="😂" onclick="incrementReaction('😂')">
                     😂
                     <span class="reaction-count">0</span>
                 </button>
-                <button class="reaction-button" onclick="incrementCounter(this)">
+                <button class="reaction-button" data-emoji="❤️" onclick="incrementReaction('❤️')">
                     ❤️
                     <span class="reaction-count">0</span>
                 </button>
-                <button class="reaction-button" onclick="incrementCounter(this)">
+                <button class="reaction-button" data-emoji="👍" onclick="incrementReaction('👍')">
                     👍
                     <span class="reaction-count">0</span>
                 </button>
-                <button class="reaction-button" onclick="incrementCounter(this)">
+                <button class="reaction-button" data-emoji="🙏" onclick="incrementReaction('🙏')">
                     🙏
                     <span class="reaction-count">0</span>
                 </button>
-                <button class="reaction-button" onclick="incrementCounter(this)">
+                <button class="reaction-button" data-emoji="💯" onclick="incrementReaction('💯')">
                     💯
                     <span class="reaction-count">0</span>
                 </button>
             </div>
         </div>
-        
+
         <div class="footer">
             <div class="navigation">
-                <button class="nav-button">←</button>
-                <button class="nav-button">→</button>
+                <button class="nav-button" onclick="loadNewQuote()">↻</button>
+                <button class="nav-button" onclick="loadNewQuote()">→</button>
             </div>
+            <div class="quote-counter">Fancy Nancy's Wisdom</div>
         </div>
     </div>
-    
-    <!-- JavaScript for reaction counters -->
+
+    <!-- JavaScript for fetching quotes and handling reactions -->
     <script>
-        function incrementCounter(button) {
+        // Current quote ID
+        let currentQuoteId = null;
+
+        // Function to fetch a random quote
+        async function loadNewQuote() {
+            const quoteText = document.getElementById('quote-text');
+            quoteText.textContent = 'Loading wisdom...';
+            quoteText.classList.remove('quote-text');
+
+            try {
+                // Add a small delay to reset animation
+                setTimeout(async () => {
+                    const response = await fetch('/api/random-quote');
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch quote');
+                    }
+
+                    const data = await response.json();
+
+                    // Store the current quote ID
+                    currentQuoteId = data.id;
+
+                    // Update the quote text with animation
+                    quoteText.textContent = data.quote;
+                    quoteText.classList.add('quote-text');
+
+                    // Reset reaction counters
+                    document.querySelectorAll('.reaction-count').forEach(counter => {
+                        counter.textContent = '0';
+                    });
+
+                }, 100);
+
+            } catch (error) {
+                console.error('Error fetching quote:', error);
+                quoteText.textContent = 'Could not load a quote. Please try again later.';
+            }
+        }
+
+        // Function to increment reaction counter
+        function incrementReaction(emoji) {
+            if (!currentQuoteId) return;
+
+            const button = document.querySelector(`.reaction-button[data-emoji="${emoji}"]`);
             const counter = button.querySelector('.reaction-count');
+
             let count = parseInt(counter.textContent);
             count++;
             counter.textContent = count;
-            
+
             // Animation effect
             button.style.transform = 'scale(1.2)';
             setTimeout(() => {
                 button.style.transform = 'none';
             }, 200);
+
+            // TODO: Add API call to save the reaction to database
+            // For now, we're just updating the UI
         }
+
+        // Load a quote when the page loads
+        document.addEventListener('DOMContentLoaded', loadNewQuote);
     </script>
 </body>
+
 </html>
