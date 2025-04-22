@@ -70,6 +70,12 @@
             margin: 0 auto;
         }
 
+        .quote-link {
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
         h1 {
             font-size: clamp(2rem, 8vw, 3.75rem);
             margin-bottom: 1rem;
@@ -293,7 +299,9 @@
                 <div class="loading-container" id="loading-indicator">
                     <div class="loading-spinner"></div>
                 </div>
-                <p id="quote-text" class="quote-text" style="display: none;"></p>
+                <p id="quote-text" class="quote-text" style="display: none;">
+                    <a id="quote-link" class="quote-link" href="#"></a>
+                </p>
             </div>
         </div>
 
@@ -486,6 +494,7 @@
         async function loadNewQuote() {
             const loadingIndicator = document.getElementById('loading-indicator');
             const quoteText = document.getElementById('quote-text');
+            const quoteLink = document.getElementById('quote-link');
 
             // Show loading, hide quote
             loadingIndicator.style.display = 'flex';
@@ -506,7 +515,14 @@
                         currentQuoteId = data.id;
 
                         // Update the quote text with animation
-                        quoteText.textContent = data.quote;
+                        quoteLink.textContent = data.quote;
+                        
+                        // Set the URL for the quote link if available
+                        if (data.url) {
+                            quoteLink.href = data.url;
+                        } else {
+                            quoteLink.href = "#"; // Fallback if no URL provided
+                        }
 
                         // Hide loading, show quote
                         loadingIndicator.style.display = 'none';
@@ -536,7 +552,8 @@
                         // Hide loading, show error message
                         loadingIndicator.style.display = 'none';
                         quoteText.style.display = 'block';
-                        quoteText.textContent = 'Could not load a quote. Please try again later.';
+                        quoteLink.textContent = 'Could not load a quote. Please try again later.';
+                        quoteLink.href = "#";
                     }
                 }, 300);
 
@@ -546,7 +563,8 @@
                 // Hide loading, show error message
                 loadingIndicator.style.display = 'none';
                 quoteText.style.display = 'block';
-                quoteText.textContent = 'Could not load a quote. Please try again later.';
+                quoteLink.textContent = 'Could not load a quote. Please try again later.';
+                quoteLink.href = "#";
             }
         }
 
